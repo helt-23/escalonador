@@ -114,9 +114,7 @@ export default function Escalonador() {
               onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
             >
               <option value="">Selecione...</option>
-              <option>Sistema</option>
-              <option>Interativo</option>
-              <option>Batch</option>
+              <option>CPU-bound</option>
               <option>I/O-bound</option>
             </select>
           </div>
@@ -183,10 +181,10 @@ export default function Escalonador() {
       {[1, 2, 3, 4].map((filaNum) => (
         <div key={filaNum} className={`fila fila${filaNum}`}>
           <h3>
-            {filaNum === 1 && 'Prioridade 1-3 (Alta)'}
-            {filaNum === 2 && 'Prioridade 4-6 (Média)'}
-            {filaNum === 3 && 'Prioridade 7-9 (Baixa)'}
-            {filaNum === 4 && 'Prioridade 10 (Background)'}
+            {filaNum === 1 && 'Prioridade (Alta)'}
+            {filaNum === 2 && 'Prioridade (Média)'}
+            {filaNum === 3 && 'Prioridade (Baixa)'}
+            {filaNum === 4 && 'Prioridade (muito Baixa)'}
           </h3>
           <div>
             {filas[filaNum - 1].map(p => (
