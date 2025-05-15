@@ -46,8 +46,8 @@ header {
 }
 
 .control-panel {
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
   background: var(--card-bg);
   padding: 1rem;
@@ -91,17 +91,22 @@ header {
   }
 }
 
-.add-btn,
-.control-btn {
-  display: inline-flex;
+.add-btn {
+  background: var(--success);
+  color: white;
+  grid-column: span 3;
+  display: flex;
+  justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.75rem;
   border: none;
   border-radius: 4px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
+  width: 60%;
+  margin: 0 auto;
 
   &:hover {
     opacity: 0.9;
@@ -109,13 +114,23 @@ header {
   }
 }
 
-.add-btn {
-  background: var(--success);
-  color: white;
-  grid-column: span 3;
+.controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
 }
 
 .control-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
   &.start {
     background: var(--success);
     color: white;
@@ -123,6 +138,11 @@ header {
   &.pause {
     background: var(--warning);
     color: white;
+  }
+
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
   }
 }
 
@@ -132,8 +152,8 @@ header {
 }
 
 .queues-section {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
 }
 
@@ -171,9 +191,9 @@ header {
   }
 }
 
-.process-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+.process-stack {
+  display: flex;
+  flex-direction: column;
   gap: 0.25rem;
 }
 
@@ -182,6 +202,7 @@ header {
   padding: 0.5rem;
   border-radius: 4px;
   font-size: 0.8rem;
+  width: 100%;
 
   .card-header {
     display: flex;
@@ -215,36 +236,72 @@ header {
   }
 }
 
-.history-panel {
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
   background: var(--card-bg);
-  padding: 0.75rem;
+  padding: 1rem;
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
 
-  .panel-header {
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  h3 {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.75rem;
-
-    h3 {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.9rem;
-    }
+    gap: 0.5rem;
   }
 
-  .clear-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.5rem;
-    background: var(--error);
-    color: white;
+  .close-btn {
+    background: none;
     border: none;
-    border-radius: 4px;
-    font-size: 0.8rem;
+    cursor: pointer;
+    color: var(--secondary);
+    padding: 0.25rem;
+
+    &:hover {
+      color: var(--primary);
+    }
+  }
+}
+
+.history-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  justify-content: center;
+  width: fit-content;
+  margin: 0 auto;
+  font-size: 0.9rem;
+
+  &:hover {
+    background: var(--secondary);
   }
 }
 
@@ -298,31 +355,25 @@ header {
   .queues-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .queues-section {
-    grid-template-columns: 1fr;
-  }
   .execution-section {
     grid-template-columns: 1fr;
   }
-
   .add-btn {
     grid-column: span 1;
   }
 }
 
-/* Seção da Tabela de Processos */
 .process-table-section {
-  margin-top: 2rem;
-  padding: 1rem;
+  margin: 2rem 0;
   background: var(--card-bg);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+  overflow: hidden;
 }
 
 .table-container {
   overflow-x: auto;
-  border-radius: var(--radius);
-  padding: 0.5rem;
+  padding: 0;
 }
 
 .process-table {
@@ -330,198 +381,120 @@ header {
   border-collapse: collapse;
   background: var(--card-bg);
   min-width: 800px;
+  font-size: 0.9rem;
 }
 
 .process-table th {
-  background: var(--primary);
-  color: white;
+  background: var(--background);
+  color: var(--primary);
   padding: 1rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  letter-spacing: 0.5px;
-}
-
-.process-table th.text-center {
-  text-align: center;
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 2px solid var(--border);
 }
 
 .process-table td {
   padding: 1rem;
   border-bottom: 1px solid var(--border);
-  font-size: 0.9rem;
+  background: var(--card-bg);
 }
 
-.process-table tr {
-  transition: all 0.2s ease;
+.process-table tr:last-child td {
+  border-bottom: none;
 }
 
-.process-table tr:hover {
+.process-table tr:hover td {
   background: rgba(59, 130, 246, 0.03);
 }
 
-/* Barras de Progresso */
+/* Progress Bars Simplificadas */
 .progress-container {
-  height: 28px;
-  background: #f1f5f9;
-  border-radius: 14px;
+  height: 24px;
+  background: var(--background);
+  border-radius: var(--radius);
   overflow: hidden;
   position: relative;
 }
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--secondary), #2563eb);
+  background: var(--secondary);
   transition: width 0.5s ease;
   display: flex;
   align-items: center;
-  padding: 0 1rem;
+  padding: 0 0.75rem;
   color: white;
-  font-weight: 500;
-  font-size: 0.85rem;
-  position: relative;
+  font-size: 0.8rem;
+  border-radius: var(--radius);
 }
 
-.progress-bar::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.remaining-time-container {
-  height: 28px;
-  background: #fee2e2;
-  border-radius: 6px;
-  overflow: hidden;
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.remaining-time-bar {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  background: linear-gradient(90deg, #fca5a5, #ef4444);
-  transition: width 0.5s ease;
-}
-
-.remaining-time-container span {
-  position: relative;
-  z-index: 1;
-  padding-left: 0.75rem;
-  font-weight: 500;
-  color: var(--error);
-}
-
-/* Estados */
 .state-badge {
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 0.75rem;
   border-radius: 1rem;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  width: fit-content;
-  margin: 0 auto;
-}
-
-.state-badge.waiting {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
+  gap: 0.25rem;
+  background: var(--background);
+  color: var(--primary);
 }
 
 .state-badge.running {
-  background: rgba(59, 130, 246, 0.1);
+  color: var(--success);
+}
+.state-badge.waiting {
+  color: var(--warning);
+}
+.state-badge.finished {
   color: var(--secondary);
 }
 
-.state-badge.finished {
-  background: rgba(34, 197, 94, 0.1);
-  color: var(--success);
-}
-
-/* Botão de Remover */
+/* Botão de Remoção Simplificado */
 .remove-button {
-  background: var(--error);
-  color: white;
-  border: none;
-  padding: 0.5rem;
+  background: none;
+  color: var(--error);
+  border: 1px solid var(--error);
+  padding: 0.25rem;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
   transition: all 0.2s ease;
-  margin: 0 auto;
-}
 
-.remove-button:hover {
-  background: #dc2626;
-  transform: scale(1.1);
-  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
-}
-
-/* Animações */
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
+  &:hover {
+    background: var(--error);
+    color: white;
   }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.process-table tbody tr {
-  animation: slideIn 0.3s ease forwards;
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
-  .process-table-section {
-    margin-top: 1rem;
-    padding: 0.5rem;
-  }
-
-  .process-table th {
-    padding: 0.75rem;
-    font-size: 0.8rem;
-  }
-
+  .process-table th,
   .process-table td {
     padding: 0.75rem;
     font-size: 0.85rem;
   }
 
+  .progress-container {
+    height: 20px;
+  }
+
   .progress-bar {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     padding: 0 0.5rem;
   }
 
   .state-badge {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
   }
 }
 
 @media (max-width: 480px) {
-  .process-table th {
-    padding: 0.5rem;
+  .process-table-section {
+    margin: 1rem 0;
+    border-radius: 0;
   }
 
+  .process-table th,
   .process-table td {
     padding: 0.5rem;
-  }
-
-  .progress-container,
-  .remaining-time-container {
-    height: 24px;
   }
 }

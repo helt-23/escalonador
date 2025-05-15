@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Cpu, HardDrive, Clock, Zap, List, Trash2, Plus, Play, Pause, Activity } from "lucide-react";
+import { Cpu, HardDrive, Clock, Zap, List, Trash2, Plus, Play, Pause, Activity, X } from "lucide-react";
 
 const ProcessCard = ({ process, colors }) => (
   <motion.div
@@ -82,13 +82,49 @@ const Queue = ({ priority, processes, color }) => (
       </div>
       <span className="process-count">{processes.length} processos</span>
     </div>
-    <div className="process-grid">
+    <div className="process-stack">
       {processes.map((process) => (
         <ProcessCard key={process.id} process={process} colors={color} />
       ))}
     </div>
   </div>
 );
+
+const HistoryModal = ({ isOpen, onClose, movementLog }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <motion.div
+        className="modal-content"
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal-header">
+          <h3><List size={18} /> Histórico de Processos</h3>
+          <button className="close-btn" onClick={onClose}>
+            <X size={20} />
+          </button>
+        </div>
+        <div className="log-table">
+          <div className="log-header">
+            <span>PID</span>
+            <span>Evento</span>
+            <span>Horário</span>
+          </div>
+          {movementLog.map(log => (
+            <div key={log.id} className="log-row">
+              <span>#{log.pid}</span>
+              <span>{log.action}</span>
+              <span>{log.time}</span>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    </div>
+  );
+};
 
 const Escalonador = () => {
   const [form, setForm] = useState({ priority: 1, type: '', time: '' });
@@ -97,6 +133,7 @@ const Escalonador = () => {
   const [movementLog, setMovementLog] = useState([]);
   const [isRunning, setIsRunning] = useState(false);
   const [nextPid, setNextPid] = useState(1);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
   const colors = {
     'CPU-bound': '#f59e0b',
@@ -243,34 +280,18 @@ const Escalonador = () => {
             ))}
           </div>
 
-          <div className="history-panel">
-            <div className="panel-header">
-              <h3><List size={18} /> Histórico</h3>
-              <button className="clear-btn" onClick={() => setMovementLog([])}>
-                <Trash2 size={16} /> Limpar
-              </button>
-            </div>
-            <div className="log-table">
-              <div className="log-header">
-                <span>PID</span>
-                <span>Evento</span>
-                <span>Horário</span>
-              </div>
-              {movementLog.map(log => (
-                <div key={log.id} className="log-row">
-                  <span>#{log.pid}</span>
-                  <span>{log.action}</span>
-                  <span>{log.time}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <button
+            className="history-btn"
+            onClick={() => setIsHistoryModalOpen(true)}
+          >
+            <List size={16} /> Ver Histórico
+          </button>
         </div>
 
         <div className="execution-section">
           <div className="execution-column">
             <h3><Zap size={18} /> Em Execução</h3>
-            <div className="process-grid">
+            <div className="process-stack">
               {processes.filter(p => p.status === 'running').map(p => (
                 <ProcessCard key={p.id} process={p} colors={colors[p.type]} />
               ))}
@@ -279,7 +300,7 @@ const Escalonador = () => {
 
           <div className="waiting-column">
             <h3><Clock size={18} /> Em Espera</h3>
-            <div className="process-grid">
+            <div className="process-stack">
               {processes.filter(p => p.status === 'waiting').map(p => (
                 <ProcessCard key={p.id} process={p} colors={colors.waiting} />
               ))}
@@ -287,6 +308,12 @@ const Escalonador = () => {
           </div>
         </div>
       </section>
+
+      <HistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+        movementLog={movementLog}
+      />
 
       <section className="process-table-section">
         <motion.div
