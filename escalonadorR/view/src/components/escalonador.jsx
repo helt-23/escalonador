@@ -24,6 +24,7 @@ export default function Escalonador() {
   const [filas, setFilas] = useState([[], [], [], []]);
   const [formData, setFormData] = useState({ pid: '', tipo: '', prioridade: '' });
   const [intervalo, setIntervalo] = useState(null);
+  const [processosConcluidos, setProcessosConcluidos] = useState([]);
 
   const atualizarFilas = (procs) => {
     const novasFilas = [[], [], [], []];
@@ -49,6 +50,7 @@ export default function Escalonador() {
   const escalonar = () => {
     let novoEmExecucao = emExecucao;
     let novosProcessos = [...processos];
+    let novosConcluidos = [...processosConcluidos];
 
     if (!novoEmExecucao) {
       for (let fila of filas) {
@@ -64,6 +66,7 @@ export default function Escalonador() {
     if (novoEmExecucao) {
       novoEmExecucao.tempoExecucao--;
       if (novoEmExecucao.tempoExecucao <= 0) {
+        novosConcluidos.push(novoEmExecucao);
         novosProcessos = novosProcessos.filter(p => p.pid !== novoEmExecucao.pid);
         novoEmExecucao = null;
       }
@@ -71,6 +74,7 @@ export default function Escalonador() {
 
     setProcessos(novosProcessos);
     setEmExecucao(novoEmExecucao);
+    setProcessosConcluidos(novosConcluidos);
     atualizarFilas(novosProcessos);
   };
 
@@ -92,7 +96,7 @@ export default function Escalonador() {
   return (
     <div className="container">
       <div className="formulario">
-        <h2>Gerenciador de Processos</h2>
+        <h2>Escalonador de Processos</h2>
         <form onSubmit={adicionarProcesso} className="form-grid">
           <div className="input-group">
             <label>PID</label>
@@ -133,10 +137,27 @@ export default function Escalonador() {
               <option>4</option>
             </select>
           </div>
-          <button type="submit" className="btn btn-primary">➕ Adicionar Processo</button>
+          <button type="submit" className="btn btn-primary">
+            ➕ Adicionar Processo
+          </button>
         </form>
       </div>
-
+      <div className="controle">
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={iniciarEscalonamento}
+        >
+          ▶️ Iniciar Escalonamento
+        </button>
+        <button
+          type="button"
+          className="btn btn-danger"
+          onClick={pararEscalonamento}
+        >
+          ⏸️ Pausar Processos
+        </button>
+      </div>
       <div className="status">
         <div className="fila executando">
           <h3>▶️ Processo em Execução</h3>
@@ -167,39 +188,55 @@ export default function Escalonador() {
             ))}
           </div>
         </div>
-      </div>
-
-      <div className="controle">
-        <button className="btn btn-primary" onClick={iniciarEscalonamento}>
-          ▶️ Iniciar Escalonamento
-        </button>
-        <button className="btn btn-danger" onClick={pararEscalonamento}>
-          ⏸️ Pausar Processos
-        </button>
-      </div>
-
-      {[1, 2, 3, 4].map((filaNum) => (
-        <div key={filaNum} className={`fila fila${filaNum}`}>
-          <h3>
-            {filaNum === 1 && 'Prioridade (Alta)'}
-            {filaNum === 2 && 'Prioridade (Média)'}
-            {filaNum === 3 && 'Prioridade (Baixa)'}
-            {filaNum === 4 && 'Prioridade (muito Baixa)'}
-          </h3>
-          <div>
-            {filas[filaNum - 1].map(p => (
-              <div key={p.pid} className="processo">
+        <div className="historico-processos">
+          <h3>Processos Concluídos ({processosConcluidos.length})</h3>
+          <div className="lista-concluidos">
+            {processosConcluidos.map((p, index) => (
+              <div key={index} className="processo concluido">
                 <div className="processo-info">
                   <strong>PID: {p.pid}</strong>
                   <span>Tipo: {p.tipo}</span>
-                  <span>Prio: {p.prioridade}</span>
+                  <span>Prioridade: {p.prioridade}</span>
                 </div>
-                <span className="estado pronto">Pronto</span>
+                <span className="estado concluido">✓ Concluído</span>
               </div>
             ))}
           </div>
+          {processosConcluidos.length > 0 && (
+            <button
+              className="btn btn-secondary"
+              onClick={() => setProcessosConcluidos([])}
+            >
+              Limpar Histórico
+            </button>
+          )}
         </div>
-      ))}
+      </div>
+
+      <div className="lista-filas">
+        {[1, 2, 3, 4].map((filaNum) => (
+          <div key={filaNum} className={`fila fila${filaNum}`}>
+            <h3>
+              {filaNum === 1 && 'Prioridade (Alta)'}
+              {filaNum === 2 && 'Prioridade (Média)'}
+              {filaNum === 3 && 'Prioridade (Baixa)'}
+              {filaNum === 4 && 'Prioridade (sla)'}
+            </h3>
+            <div>
+              {filas[filaNum - 1].map(p => (
+                <div key={p.pid} className="processo">
+                  <div className="processo-info">
+                    <strong>PID: {p.pid}</strong>
+                    <span>Tipo: {p.tipo}</span>
+                    <span>Prio: {p.prioridade}</span>
+                  </div>
+                  <span className="estado pronto">Pronto</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
